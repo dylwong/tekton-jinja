@@ -1,0 +1,85 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: {{ .PipelineName }}
+spec:
+  tasks:
+  - name: generate-tekton
+    taskRef:
+      name: tekton-generate
+    params:
+      - name: TEMPLATE_URLS
+        value: ["template-url-1", "template-url-2"]
+      - name: TEMPLATE_VARS
+        value: ["var1", "val1", "var2", "val2"]
+      - name: TEMPLATE_DIR
+        value: "template-dir"
+      - name: RENDERED_DIR
+        value: "rendered-dir"
+      - name: TEKTON_JINJA_IMAGE
+        value: "quay.io/erikerlandson/tekton-jinja:0.1.0"
+  resources:
+    inputs:
+    - name: template-url-1
+      resourceSpec:
+        type: git
+        params:
+          - name: revision
+            value: main
+          - name: url
+            value: "https://github.com/yourorg/template-repo-1.git"
+    - name: template-url-2
+      resourceSpec:
+        type: git
+        params:
+          - name: revision
+            value: main
+          - name: url
+            value: "https://github.com/yourorg/template-repo-2.git"
+    outputs:
+    - name: generated-resources
+      resourceSpec:
+        type: git
+        params:
+          - name: revision
+            value: main
+          - name: url
+            value: "https://github.com/yourorg/generated-resources-repo.git"
+
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: tekton-generate
+spec:
+  inputs:
+    params:
+      - name: TEMPLATE_URLS
+        type: array
+      - name: TEMPLATE_VARS
+        type: array
+      - name: TEMPLATE_DIR
+      - name: RENDERED_DIR
+      - name: TEKTON_JINJA_IMAGE
+  workspaces:
+    - name: output
+      readOnly: false
+      mountPath: /opt/tekton-generate/data
+  steps:
+    - name: stage-templates
+      image: $(inputs.params.TEKTON_JINJA_IMAGE)
+      command:
+        - "/opt/tekton-generate/bin/stage"
+        - "/opt/tekton-generate/data/$(inputs.params.TEMPLATE_DIR)"
+        - "/opt/tekton-generate/data/$(inputs.params.RENDERED_DIR)"
+        - "$(inputs.params.TEMPLATE_URLS[*])"
+    - name: render-templates
+      image: $(inputs.params.TEKTON_JINJA_IMAGE)
+      command:
+        - "/opt/tekton-generate/bin/render"
+        - "/opt/tekton-generate/data/$(inputs.params.TEMPLATE_DIR)"
+        - "/opt/tekton-generate/data/$(inputs.params.RENDERED_DIR)"
+        - "--urls"
+        - "$(inputs.params.TEMPLATE_URLS[*])"
+        - "--vars"
+        - "$(inputs.params.TEMPLATE_VARS[*])"

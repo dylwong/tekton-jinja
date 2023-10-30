@@ -1,15 +1,14 @@
 # tekton-jinja
 A tekton task for rendering jinja2 templates
 
-### Use in your Kubernetes or OpenShift project
+### Use in your OpenShift project
 
 Install the `tekton-jinja` task into your namespace
 ```sh
-$ kubectl apply -f https://raw.githubusercontent.com/erikerlandson/tekton-jinja/main/task-tekton-jinja.yaml
-# or use 'oc apply ...' in OpenShift
+$ oc apply -f https://raw.githubusercontent.com/erikerlandson/tekton-jinja/main/task-tekton-jinja.yaml
 ```
 
-Here is an example tekton pipeline that invokes the `tekton-jinja` task:
+Here is an example tekton pipeline that invokes the `tekton-generate` task:
 
 ```yaml
 apiVersion: tekton.dev/v1alpha1

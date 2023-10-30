@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  name: tekton-jinja
+  name: tekton-generate
 spec:
   inputs:
     params:
@@ -21,25 +21,25 @@ spec:
         default: rendered
       - name: TEKTON_JINJA_IMAGE
         description: Image to use for tekton jinja task
-        default: 'quay.io/erikerlandson/tekton-jinja:0.1.0'
+        default: # quay.io/erikerlandson/tekton-jinja:0.1.0
   workspaces:
     - name: output
       readOnly: false
-      mountPath: /opt/tekton-jinja/data
+      mountPath: /opt/tekton-generate/data
   steps:
     - name: stage-templates
       image: $(inputs.params.TEKTON_JINJA_IMAGE)
       command:
-        - "/opt/tekton-jinja/bin/stage"
-        - "/opt/tekton-jinja/data/$(inputs.params.TEMPLATE_DIR)"
-        - "/opt/tekton-jinja/data/$(inputs.params.RENDERED_DIR)"
+        - "/opt/tekton-generate/bin/stage"
+        - "/opt/tekton-generate/data/$(inputs.params.TEMPLATE_DIR)"
+        - "/opt/tekton-generate/data/$(inputs.params.RENDERED_DIR)"
         - "$(inputs.params.TEMPLATE_URLS[*])"
     - name: render-templates
       image: $(inputs.params.TEKTON_JINJA_IMAGE)
       command:
-        - "/opt/tekton-jinja/bin/render"
-        - "/opt/tekton-jinja/data/$(inputs.params.TEMPLATE_DIR)"
-        - "/opt/tekton-jinja/data/$(inputs.params.RENDERED_DIR)"
+        - "/opt/tekton-generate/bin/render"
+        - "/opt/tekton-generate/data/$(inputs.params.TEMPLATE_DIR)"
+        - "/opt/tekton-generate/data/$(inputs.params.RENDERED_DIR)"
         - "--urls"
         - "$(inputs.params.TEMPLATE_URLS[*])"
         - "--vars"

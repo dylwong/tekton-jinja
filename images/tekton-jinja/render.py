@@ -1,7 +1,7 @@
 import sys
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-print("\n======================")
+print("\n*********** TASK: RENDERING **************")
 print("Tekton Jinja Template processing")
 
 # assumes both of these directories have been created
