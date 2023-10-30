@@ -1,0 +1,20 @@
+---
+- name: Render Tekton Templates
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Render Tekton Templates
+      tekton_render_module:
+        tmpldir: templates
+        rndrdir: rendered
+        urls:
+          - "sample_template.j2"
+        vars:
+          - "var1"
+          - "val1"
+          - "var2"
+          - "val2"
+      register: result
+
+    - debug:
+        var: result.results
